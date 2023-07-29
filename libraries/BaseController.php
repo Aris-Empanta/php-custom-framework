@@ -4,7 +4,8 @@ namespace Libraries;
 
 class BaseController
 {
-    public function renderView()
+    protected function renderView(string $view) : void
     {
+        require dirname(__DIR__) . "/app/views/$view.php";
     }
 }
