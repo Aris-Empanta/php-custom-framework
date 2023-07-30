@@ -3,7 +3,6 @@
 namespace Libraries;
 
 use DateTime;
-require dirname(__DIR__) .'/config/constants.php';
 
 class ErrorHandler
 {
@@ -23,6 +22,10 @@ class ErrorHandler
 
         $errorsLog = dirname(__DIR__). ERRORS_LOG;
 
+        if (!is_dir(dirname($errorsLog))) {
+            mkdir(dirname($errorsLog), 0755, true);
+        }
+            
         $formattedErrorMessage = ErrorHandler::formatErrorMessage($errorNumber, $errorMessage, $errorFile, $errorLine);     
         
         //In production the visitor should not see the error for security reasons
@@ -39,7 +42,7 @@ class ErrorHandler
         }
         
 
-        $fileHandle = fopen($errorsLog, 'a');
+        $fileHandle = fopen($errorsLog, 'a+');
         if ($fileHandle) {
             if (flock($fileHandle, LOCK_EX)) {
                 fwrite($fileHandle, $formattedErrorMessage);
@@ -66,8 +69,12 @@ class ErrorHandler
                 // We clean the output buffer in order to render the error page below.
                 ob_clean();
                 $errorsLog = dirname(__DIR__) . ERRORS_LOG;
-    
-                $writeToFile = fopen($errorsLog, 'a'); // Use 'a' mode for appending
+
+                if (!is_dir(dirname($errorsLog))) {
+                    mkdir(dirname($errorsLog), 0755, true);
+                }
+
+                $writeToFile = fopen($errorsLog, 'a+'); // Use 'a' mode for appending
     
                 if ($writeToFile !== false) {
                     $errorMessage = ErrorHandler::formatErrorMessage($errorNumber, $errorMessage, $errorFile, $errorLine);
